@@ -6,6 +6,10 @@ public class View extends JFrame implements ActionListener {
 
     private Controller controller;
 
+    public void init() {
+
+    }
+
     public Controller getController() {
         return controller;
     }
@@ -17,5 +21,9 @@ public class View extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
+    }
+
+    public void exit() {
+        controller.exit();
     }
 }
