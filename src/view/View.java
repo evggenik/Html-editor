@@ -1,3 +1,7 @@
+package view;
+
+import controller.Controller;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -5,6 +9,9 @@ import java.awt.event.ActionListener;
 public class View extends JFrame implements ActionListener {
 
     private Controller controller;
+    private JTabbedPane tabbedPane = new JTabbedPane();
+    private JTextPane htmlTextPane = new JTextPane();
+    private JEditorPane plainTextPane = new JEditorPane();
 
     public void init() {
 
