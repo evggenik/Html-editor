@@ -1,11 +1,15 @@
 package controller;
 
+import exceptions.ExceptionHandler;
 import listeners.UndoListener;
 import view.View;
 
+import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 
 public class Controller {
 
@@ -46,5 +50,15 @@ public class Controller {
         document = (HTMLDocument) new HTMLEditorKit().createDefaultDocument();
         document.addUndoableEditListener(undoListener);
         view.update();
+    }
+
+    public void setPlainText(String text) {
+        resetDocument();
+        StringReader stringReader = new StringReader(text);
+        try {
+            new HTMLEditorKit().read(stringReader, document, 0);
+        } catch (IOException | BadLocationException e) {
+            ExceptionHandler.log(e);
+        }
     }
 }
