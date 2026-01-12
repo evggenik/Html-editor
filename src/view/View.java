@@ -5,15 +5,21 @@ import exceptions.ExceptionHandler;
 import listeners.FrameListener;
 import listeners.MenuHelper;
 import listeners.TabbedPaneChangeListener;
+import listeners.UndoListener;
 
 import javax.swing.*;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class View extends JFrame implements ActionListener {
-
     private Controller controller;
+    private UndoManager undoManager = new UndoManager();
+    private UndoListener undoListener = new UndoListener(undoManager);
+
     private JTabbedPane tabbedPane = new JTabbedPane();
     private JTextPane htmlTextPane = new JTextPane();
     private JEditorPane plainTextPane = new JEditorPane();
@@ -26,18 +32,31 @@ public class View extends JFrame implements ActionListener {
         }
     }
 
+    public void setController(Controller controller) {
+        this.controller = controller;
+    }
+
+    public Controller getController() {
+        return controller;
+    }
+
+    public UndoListener getUndoListener() {
+        return undoListener;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+    }
+
     public void init() {
         initGui();
-        FrameListener frameListener = new FrameListener(this);
-        this.addWindowListener(frameListener);
+        addWindowListener(new FrameListener(this));
         setVisible(true);
     }
 
-    public void initGui() {
-        initMenuBar();
-        initEditor();
-        pack();
-        //setSize(800, 600); // otherwise the window appeared minimized
+    public void exit() {
+        controller.exit();
     }
 
     public void initMenuBar() {
@@ -57,42 +76,54 @@ public class View extends JFrame implements ActionListener {
     public void initEditor() {
         htmlTextPane.setContentType("text/html");
         JScrollPane htmlScrollPane = new JScrollPane(htmlTextPane);
-        htmlScrollPane.setPreferredSize(new Dimension(200, 100));
-
         tabbedPane.addTab("HTML", htmlScrollPane);
+
         JScrollPane plainScrollPane = new JScrollPane(plainTextPane);
         tabbedPane.addTab("Текст", plainScrollPane);
-        tabbedPane.setPreferredSize(new Dimension(800, 600));
+
+        tabbedPane.setPreferredSize(new Dimension(300, 300));
+
         tabbedPane.addChangeListener(new TabbedPaneChangeListener(this));
+
         getContentPane().add(tabbedPane, BorderLayout.CENTER);
     }
 
-    public Controller getController() {
-        return controller;
+    public void undo() {
+        try {
+            undoManager.undo();
+        } catch (CannotUndoException e) {
+            ExceptionHandler.log(e);
+        }
     }
 
-    public void setController(Controller controller) {
-        this.controller = controller;
+    public void redo() {
+        try {
+            undoManager.redo();
+        } catch (CannotRedoException e) {
+            ExceptionHandler.log(e);
+        }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
 
-    }
-
-    public void exit() {
-        controller.exit();
+    public void initGui() {
+        initMenuBar();
+        initEditor();
+        pack();
     }
 
     public void selectedTabChanged() {
+
     }
 
     public boolean canUndo() {
-        return false;
+        return undoManager.canUndo();
     }
 
     public boolean canRedo() {
-        return false;
+        return undoManager.canRedo();
     }
 
+    public void resetUndo() {
+        undoManager.discardAllEdits();
+    }
 }
